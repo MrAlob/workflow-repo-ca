@@ -45,25 +45,25 @@ Then open `http://localhost:5500` in your browser.
 
 ## Scripts
 
-| Command              | Description                                   |
-| -------------------- | --------------------------------------------- |
-| `npm install`        | Install all dependencies                      |
-| `npm run dev`        | Build Tailwind CSS in watch mode              |
-| `npm test`           | Run unit tests (Vitest)                       |
-| `npm run test:watch` | Run unit tests in watch mode                  |
-| `npm run test:e2e`   | Run end-to-end tests (Playwright)              |
-| `npm run lint`       | Lint JavaScript files (ESLint)                |
-| `npm run format`     | Format files (Prettier)                       |
+| Command              | Description                       |
+| -------------------- | --------------------------------- |
+| `npm install`        | Install all dependencies          |
+| `npm run dev`        | Build Tailwind CSS in watch mode  |
+| `npm test`           | Run unit tests (Vitest)           |
+| `npm run test:watch` | Run unit tests in watch mode      |
+| `npm run test:e2e`   | Run end-to-end tests (Playwright) |
+| `npm run lint`       | Lint JavaScript files (ESLint)    |
+| `npm run format`     | Format files (Prettier)           |
 
 ## Required Environment Variables
 
 The following environment variables must be set in a `.env` file:
 
-| Variable            | Description                          |
-| ------------------- | ------------------------------------ |
-| `TEST_USER_EMAIL`   | Email for a valid test user account  |
-| `TEST_USER_PASSWORD`| Password for the test user account   |
-| `BASE_URL`          | Base URL of the application          |
+| Variable             | Description                         |
+| -------------------- | ----------------------------------- |
+| `TEST_USER_EMAIL`    | Email for a valid test user account |
+| `TEST_USER_PASSWORD` | Password for the test user account  |
+| `BASE_URL`           | Base URL of the application         |
 
 ## Testing
 
@@ -84,6 +84,9 @@ E2E tests cover:
 - **Navigation** — clicking through to venue details
 
 Tests are located in `tests/e2e/`.
+
+Note: E2E tests mock API responses (login and venues) to avoid external
+dependencies and keep the suite deterministic.
 
 Before running e2e tests, start the local server:
 

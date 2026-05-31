@@ -1,6 +1,75 @@
 import { test, expect } from "@playwright/test";
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:5500";
+const API_PATTERN = "**/api/v1/holidaze";
+
+async function mockLoginSuccess(page, email) {
+  await page.route(`${API_PATTERN}/auth/login`, async (route) => {
+    const request = route.request();
+    if (request.method() !== "POST") {
+      return route.fallback();
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        accessToken: "test-token",
+        name: "Test User",
+        email: email,
+      }),
+    });
+  });
+}
+
+async function mockLoginFailure(page) {
+  await page.route(`${API_PATTERN}/auth/login`, async (route) => {
+    const request = route.request();
+    if (request.method() !== "POST") {
+      return route.fallback();
+    }
+
+    await route.fulfill({
+      status: 401,
+      contentType: "application/json",
+      body: JSON.stringify({
+        errors: [{ message: "Invalid email or password" }],
+      }),
+    });
+  });
+}
+
+async function mockVenues(page) {
+  const venue = {
+    id: "venue-1",
+    name: "Test Venue",
+    media: ["https://placehold.co/600x400"],
+  };
+
+  await page.route(`${API_PATTERN}/venues`, async (route) => {
+    if (route.request().method() !== "GET") {
+      return route.fallback();
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([venue]),
+    });
+  });
+
+  await page.route(`${API_PATTERN}/venues/*`, async (route) => {
+    if (route.request().method() !== "GET") {
+      return route.fallback();
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(venue),
+    });
+  });
+}
 
 test.describe("Login functionality", () => {
   test.beforeEach(async ({ page }) => {
@@ -8,8 +77,10 @@ test.describe("Login functionality", () => {
   });
 
   test("users with valid credentials can log in", async ({ page }) => {
-    const email = process.env.TEST_USER_EMAIL;
-    const password = process.env.TEST_USER_PASSWORD;
+    const email = process.env.TEST_USER_EMAIL || "tester@stud.noroff.no";
+    const password = process.env.TEST_USER_PASSWORD || "password123";
+
+    await mockLoginSuccess(page, email);
 
     await page.fill('input[name="email"]', email);
     await page.fill('input[name="password"]', password);
@@ -21,6 +92,7 @@ test.describe("Login functionality", () => {
   });
 
   test("users with invalid credentials see an error message", async ({ page }) => {
+    await mockLoginFailure(page);
     await page.fill('input[name="email"]', "invalid@example.com");
     await page.fill('input[name="password"]', "wrongpassword");
     await page.click('button[type="submit"]');
@@ -36,6 +108,7 @@ test.describe("Login functionality", () => {
 
 test.describe("Navigation functionality", () => {
   test("navigate to venue details page", async ({ page }) => {
+    await mockVenues(page);
     await page.goto(`${BASE_URL}/`);
 
     // Wait for the venue list to load
