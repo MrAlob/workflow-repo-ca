@@ -1,0 +1,26 @@
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./tests/e2e",
+  fullyParallel: false,
+  retries: 0,
+  workers: 1,
+  reporter: "list",
+  use: {
+    baseURL: "http://localhost:5500",
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
+  },
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+    },
+  ],
+  webServer: {
+    command: "npx live-server --port=5500 --no-browser",
+    port: 5500,
+    reuseExistingServer: true,
+    timeout: 30000,
+  },
+});
